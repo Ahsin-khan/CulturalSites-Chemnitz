@@ -1,0 +1,25 @@
+<header class="header">
+  <div class="header-content">
+    <div class="logo">
+      <a routerLink="/dashboard">CulturaMap Chemnitz</a>
+    </div>
+    
+    <nav class="nav" *ngIf="isAuthenticated()">
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/sites" routerLinkActive="active">Sites</a>
+      <a routerLink="/favorites" routerLinkActive="active">Favorites</a>
+      <a routerLink="/reviews" routerLinkActive="active">My Reviews</a>
+    </nav>
+    
+    <div class="user-menu" *ngIf="isAuthenticated()">
+      <span class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
+      <a routerLink="/profile">Profile</a>
+      <button (click)="logout()" class="logout-btn">Logout</button>
+    </div>
+    
+    <div class="auth-links" *ngIf="!isAuthenticated()">
+      <a routerLink="/login">Login</a>
+      <a routerLink="/register">Register</a>
+    </div>
+  </div>
+</header>

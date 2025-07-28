@@ -1,0 +1,106 @@
+<div class="profile">
+  <div class="profile-header">
+    <h1>My Profile</h1>
+    <p>Manage your account information</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading profile...
+  </div>
+
+  <div *ngIf="!loading" class="profile-content">
+    <div class="profile-card">
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="userName">Username</label>
+            <input
+              type="text"
+              id="userName"
+              formControlName="userName"
+              placeholder="Enter your username"
+              [class.error]="profileForm.get('userName')?.invalid && profileForm.get('userName')?.touched"
+            >
+            <div class="error-message" *ngIf="profileForm.get('userName')?.invalid && profileForm.get('userName')?.touched">
+              Username is required
+            </div>
+          </div>        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input
+              type="text"
+              id="firstName"
+              formControlName="firstName"
+              placeholder="Enter your first name"
+              [class.error]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched"
+            >
+            <div class="error-message" *ngIf="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched">
+              First name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              formControlName="lastName"
+              placeholder="Enter your last name"
+              [class.error]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched"
+            >
+            <div class="error-message" *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched">
+              Last name is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.error]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+          >
+          <div class="error-message" *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
+            Please enter a valid email address
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input
+            type="text"
+            id="location"
+            formControlName="location"
+            placeholder="Enter your location"
+          >
+        </div>
+        <div class="success-message" *ngIf="message">
+          {{ message }}
+        </div>
+
+        <div class="error-message" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <button type="submit" [disabled]="saving || profileForm.invalid" class="submit-btn">
+          {{ saving ? 'Saving...' : 'Update Profile' }}
+        </button>
+      </form>
+    </div>
+
+    <div class="account-info" *ngIf="currentUser">
+      <h3>Account Information</h3>
+      <div class="info-item">
+        <strong>Member since:</strong>
+        {{ currentUser.createdAt | date:'mediumDate' }}
+      </div>
+      <div class="info-item">
+        <strong>Last updated:</strong>
+        {{ currentUser.updatedAt | date:'mediumDate' }}
+      </div>
+    </div>
+  </div>
+</div>

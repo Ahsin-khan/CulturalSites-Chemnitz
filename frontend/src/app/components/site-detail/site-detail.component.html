@@ -1,0 +1,169 @@
+<div class="site-detail" *ngIf="site">
+  <div class="site-header">
+    <div class="site-images">
+      <div *ngIf="site.images && site.images.length > 0; else placeholderImage" class="image-gallery">
+        <img [src]="getProxiedImageUrl(site.images[0])" [alt]="site.name" class="main-image">
+        <div *ngIf="site.images.length > 1" class="thumbnail-gallery">
+          <img *ngFor="let image of site.images.slice(1, 4)" 
+            [src]="getProxiedImageUrl(image)" 
+            [alt]="site.name"
+            class="thumbnail">
+
+        </div>
+      </div>
+      <ng-template #placeholderImage>
+        <div class="placeholder-image">{{ site.name.charAt(0) }}</div>
+      </ng-template>
+    </div>
+
+    <div class="site-info">
+      <div class="site-title">
+        <h1>{{ site.name }}</h1>
+        <button (click)="toggleFavorite()" 
+                [class.favorite]="isFavorite"
+                class="favorite-btn">
+          {{ isFavorite ? '❤️' : '🤍' }}
+        </button>
+      </div>
+
+      <div class="site-details-section">
+        <p>
+          <strong>Address:</strong> {{ formatAddress(site) }}
+        </p>
+
+        <p *ngIf="site.latitude && site.longitude">
+          <strong>Location:</strong>
+          <a [href]="'https://www.google.com/maps?q=' + site.latitude + ',' + site.longitude" target="_blank">
+            View on Map
+          </a>
+        </p>
+      </div>
+
+
+      <div class="site-categories" *ngIf="site.categories && site.categories.length > 0">
+        <h3>Categories</h3>
+        <div class="categories-list">
+          <span *ngFor="let category of site.categories" class="category-tag">
+            {{ category.name }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-content">
+    <div class="main-content">
+     <div class="description-section">
+        <h2>About</h2>
+
+        <!-- Show backend 'description' or fallback to tag-based 'description' -->
+        <p *ngIf="site.description || site.tags?.['description'] || site.categories?.[0]?.description">
+          {{ site.description || site.tags?.['description'] || site.categories?.[0]?.description }}
+        </p>
+
+        <!-- Show 'inscription' if available -->
+        <p *ngIf="site.tags?.['inscription']">
+          {{ site.tags?.['inscription'] }}
+        </p>
+      </div>
+
+
+      <div class="contact-info" *ngIf="site.website || site.phone || site.openingHours">
+        <h2>Contact & Information</h2>
+        <div class="info-grid">
+          <div *ngIf="site.website" class="info-item">
+            <strong>Website:</strong>
+            <a [href]="site.website" target="_blank">{{ site.website }}</a>
+          </div>
+          <div *ngIf="site.phone" class="info-item">
+            <strong>Phone:</strong>
+            <span>{{ site.phone }}</span>
+          </div>
+          <div *ngIf="site.openingHours" class="info-item">
+            <strong>Opening Hours:</strong>
+            <span>{{ site.openingHours }}</span>
+          </div>
+          <div *ngIf="site.admissionFee" class="info-item">
+            <strong>Admission Fee:</strong>
+            <span>{{ site.admissionFee }}</span>
+          </div>
+          <div *ngIf="site.accessibility" class="info-item">
+            <strong>Accessibility:</strong>
+            <span>{{ site.accessibility }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+  <div class="quick-info">
+    <h3>Quick Info</h3>
+
+    <div class="quick-info-item">
+      <strong>Type:</strong> {{ site.categories?.[0]?.name || (site.type | titlecase) }}
+    </div>
+
+    <div class="quick-info-item" *ngIf="site.average_rating">
+      <strong>Average Rating:</strong> {{ site.average_rating | number:'1.1-1'}}/5
+    </div>
+
+    <div class="quick-info-item" *ngIf="site.favorite_count">
+      <strong>Favorite Count:</strong> {{ site.favorite_count }}
+    </div>
+
+    <div class="quick-info-item">
+      <strong>Total Reviews:</strong> {{ site.reviews?.length }}
+    </div>
+
+    <div class="quick-info-item" *ngIf="site.openingHours || site.tags?.['opening_hours']">
+      <strong>Opening Hours:</strong> {{ site.openingHours || site.tags?.['opening_hours'] }}
+    </div>
+
+    <div class="quick-info-item" *ngIf="site.fee || site.tags?.['fee']">
+      <strong>Entry Fee:</strong> {{ site.fee || site.tags?.['fee'] === 'yes' ? 'Yes' : 'No' }}
+    </div>
+
+    <div class="quick-info-item" *ngIf="site.wheelchair || site.tags?.['wheelchair']">
+      <strong>Wheelchair Access:</strong> {{ (site.wheelchair || site.tags?.['wheelchair'])?.toString() | titlecase }}
+    </div>
+  </div>
+</div>
+
+<!-- Reviews Section -->
+<div class="reviews-section">
+  <div class="reviews-header">
+    <h2>Reviews ({{ reviews.length }})</h2>
+    <a [routerLink]="['/sites', site.id, 'review']" class="write-review-btn">Write a Review</a>
+  </div>
+
+  <div *ngIf="reviews.length === 0" class="no-reviews">
+    <p>No reviews yet. Be the first to review this site!</p>
+  </div>
+
+  <div *ngFor="let review of reviews" class="review-card">
+    <div class="review-header">
+      <div class="reviewer-info">
+        <strong>{{ review.first_name }} {{ review.last_name }}</strong>
+        <div class="rating">
+          <span *ngFor="let star of getStarsArray(5)" 
+                [class.filled]="star <= review.rating">★</span>
+        </div>
+      </div>
+      <div class="review-date">{{ review.created_at | date:'mediumDate' }}</div>
+    </div>
+    <p class="review-comment">{{ review.comment }}</p>
+    <div *ngIf="review.visitDate" class="visit-date">
+      Visited: {{ review.visitDate | date:'mediumDate' }}
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div *ngIf="loading" class="loading">
+  Loading site details...
+</div>
+
+<div *ngIf="error" class="error">
+  {{ error }}
+</div>

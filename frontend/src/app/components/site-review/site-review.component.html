@@ -1,0 +1,32 @@
+<div class="review-container">
+  <h2>Write a Review</h2>
+
+  <form (ngSubmit)="submitReview()" #reviewForm="ngForm">
+    <div class="form-group">
+      <label for="rating">Rating</label>
+    <div class="form-group">
+<!--   <label for="rating">Rating</label>
+ -->  <div class="star-rating">
+    <span 
+      *ngFor="let star of [1,2,3,4,5]" 
+      (click)="setRating(star)"
+      (mouseover)="hoverRating = star"
+      (mouseleave)="hoverRating = 0"
+      [class.filled]="star <= (hoverRating || rating)">
+      ★
+    </span>
+  </div>
+</div>
+
+    </div>
+
+    <div class="form-group">
+      <label for="comment">Comment</label>
+      <textarea id="comment" [(ngModel)]="comment" name="comment" required rows="4" placeholder="Share your experience..."></textarea>
+    </div>
+
+    <button class="submit-btn" type="submit">Submit Review</button>
+
+    <p class="message" *ngIf="message">{{ message }}</p>
+  </form>
+</div>

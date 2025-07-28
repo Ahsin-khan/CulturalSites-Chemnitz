@@ -1,0 +1,100 @@
+<div class="review-list">
+  <div class="header">
+    <h1>My Reviews</h1>
+    <p>Reviews you've written for cultural sites</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading your reviews...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && reviews.length === 0" class="no-reviews">
+    <h3>No reviews yet</h3>
+    <p>Start exploring sites and share your experiences!</p>
+    <a routerLink="/sites" class="explore-btn">Explore Sites</a>
+  </div>
+
+  <div *ngIf="!loading && !error && reviews.length > 0" class="reviews-container">
+    <div *ngFor="let review of reviews" class="review-card">
+      <div class="review-header">
+        <div class="site-info">
+          <h3>{{ review.site_name }}</h3>
+            <p class="site-type">{{ review.site_type }}</p>
+          <div class="rating">
+            <span *ngFor="let star of getStarsArray(5)" 
+                  [class.filled]="star <= review.rating">★</span>
+            <span class="rating-number">{{ review.rating }}/5</span>
+          </div>
+        </div>
+        <div class="review-actions">
+          <button (click)="editReview(review)" class="edit-btn" title="Edit review">
+            ✏️
+          </button>
+          <button (click)="deleteReview(review.id)" class="delete-btn" title="Delete review">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <div class="review-content">
+        <p class="review-comment">{{ review.comment }}</p>
+        
+        <div class="review-meta">
+          <div class="review-date">
+            <strong>Reviewed:</strong> {{ review.created_at | date:'mediumDate' }}
+          </div>
+          <div *ngIf="review.visitDate" class="visit-date">
+            <strong>Visited:</strong> {{ review.visitDate | date:'mediumDate' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="review-footer">
+        <a [routerLink]="['/sites', review.site_id]" class="view-site-btn">
+          View Site
+        </a>
+      </div>
+
+      <div *ngIf="editingReview?.id === review.id" class="edit-form">
+        <form (ngSubmit)="submitEdit()" #editForm="ngForm">
+          <div class="form-group">
+            <label>Rating</label>
+            <div class="star-rating">
+              <span 
+                *ngFor="let star of [1,2,3,4,5]" 
+                (click)="editingReview!.rating = star"
+                (mouseover)="hoverRating = star"
+                (mouseleave)="hoverRating = 0"
+                [class.filled]="star <= (hoverRating || editingReview!.rating)">
+                ★
+              </span>
+              <span class="rating-number">{{ editingReview!.rating }}/5</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Comment</label>
+            <textarea 
+              [(ngModel)]="editingReview!.comment" 
+              name="comment" 
+              rows="4" 
+              placeholder="Update your review..."
+              required>
+            </textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" [disabled]="editForm.invalid" class="submit-btn">Update</button>
+            <button type="button" (click)="cancelEdit()" class="cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+
+    </div>
+  </div>
+</div>

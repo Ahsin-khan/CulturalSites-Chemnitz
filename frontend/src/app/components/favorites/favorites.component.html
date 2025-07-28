@@ -1,0 +1,68 @@
+<div class="favorites">
+  <div class="header">
+    <h1>My Favorites</h1>
+    <p>Your saved cultural sites</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading your favorites...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && favorites.length === 0" class="no-favorites">
+    <h3>No favorites yet</h3>
+    <p>Start exploring and add sites to your favorites!</p>
+    <a routerLink="/sites" class="explore-btn">Explore Sites</a>
+  </div>
+
+  <div *ngIf="!loading && !error && favorites.length > 0" class="favorites-grid">
+    <div *ngFor="let site of favorites" class="favorite-card">
+      <div class="site-image"> 
+        <img *ngIf="site.site.tags?.image; else placeholderImage" 
+            [src]="getProxiedImageUrl(site.site.tags.image)" 
+            [alt]="site.site.name">
+
+        <ng-template #placeholderImage>
+          <div class="placeholder-image">{{ site.site.name.charAt(0) }}</div>
+        </ng-template>
+
+        <button (click)="removeFromFavorites(site.site.id)" class="remove-btn" title="Remove from favorites">
+          ❌
+        </button>
+      </div>
+
+
+      <div class="site-content">
+        <h3>{{ site.site.name }}</h3>
+        <p class="site-type">{{ site.site.type | titlecase }}</p>
+        
+        <p class="site-description" *ngIf="site.site.tags?.description">
+          {{ site.site.tags.description | slice:0:100 }}...
+        </p>
+
+        <div class="site-location" *ngIf="site.site.tags?.['memorial:addr']">
+          <span>📍 {{ site.site.tags['memorial:addr'] }}</span>
+        </div>
+
+        <div class="site-meta">
+          <div class="rating" *ngIf="site.site.averageRating">
+            <span *ngFor="let star of [1,2,3,4,5]" 
+                  [class.filled]="star <= site.site.averageRating">★</span>
+            <span class="rating-text">({{ site.site.reviewCount }})</span>
+          </div>
+        </div>
+
+        <div class="site-categories" *ngIf="site.site.categories?.length">
+          <span *ngFor="let category of site.site.categories" class="category-tag">
+            {{ category.name }}
+          </span>
+        </div>
+
+        <a [routerLink]="['/sites', site.site.id]" class="view-btn">View Details</a>
+      </div>
+    </div>
+  </div>
+</div>

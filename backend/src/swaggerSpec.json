@@ -1,0 +1,917 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Cultural Sites API",
+    "version": "1.0.0",
+    "description": "API documentation for Cultural Sites"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "email", "password"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "format": "password" },
+                  "first_name": { "type": "string" },
+                  "last_name": { "type": "string" },
+                  "location_lat": { "type": "number" },
+                  "location_lon": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          },
+          "400": {
+            "description": "Missing required fields"
+          },
+          "409": {
+            "description": "User already exists"
+          },
+          "500": {
+            "description": "Error creating user"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Authenticate user and return token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string", "format": "password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful"
+          },
+          "400": {
+            "description": "Missing credentials"
+          },
+          "401": {
+            "description": "Invalid username or password"
+          },
+          "500": {
+            "description": "Error logging in"
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get current authenticated user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user data"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Error fetching user"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update current authenticated user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "first_name": { "type": "string" },
+                  "last_name": { "type": "string" },
+                  "location_lat": { "type": "number" },
+                  "location_lon": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully"
+          },
+          "400": {
+            "description": "No fields to update"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Error updating user"
+          }
+        }
+      }
+    },
+
+    "/reviews/site/{siteId}": {
+      "get": {
+        "tags": ["Review"],
+        "summary": "Get reviews for a specific site",
+        "parameters": [
+          {
+            "name": "siteId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the site to fetch reviews for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of reviews for the site"
+          },
+          "500": {
+            "description": "Server error while fetching reviews"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Review"],
+        "summary": "Create or update a review for a specific site",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "siteId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the site to review"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+                  "comment": { "type": "string" }
+                },
+                "required": ["rating"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created"
+          },
+          "200": {
+            "description": "Review updated"
+          },
+          "400": {
+            "description": "Validation error (e.g., rating out of range)"
+          },
+          "401": {
+            "description": "User not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/reviews/{reviewId}": {
+      "put": {
+        "tags": ["Review"],
+        "summary": "Update an existing review",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the review to update"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+                  "comment": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review updated successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Review not found or unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Review"],
+        "summary": "Delete a review",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the review to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review deleted successfully"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Review not found or unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/reviews/user": {
+      "get": {
+        "tags": ["Review"],
+        "summary": "Get reviews by the authenticated user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of user reviews"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+
+    "/favorites": {
+      "get": {
+        "tags": ["Favorites"],
+        "summary": "Get all favorites for the current user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of favorite sites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Favorite"
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authenticated" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/favorites/{siteId}": {
+      "post": {
+        "tags": ["Favorites"],
+        "summary": "Add a site to favorites",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "siteId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Site added to favorites",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Favorite" }
+              }
+            }
+          },
+          "401": { "description": "Not authenticated" },
+          "409": { "description": "Site already in favorites" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "delete": {
+        "tags": ["Favorites"],
+        "summary": "Remove a site from favorites",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "siteId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Favorite removed successfully" },
+          "401": { "description": "Not authenticated" },
+          "404": { "description": "Favorite not found" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/favorites/{siteId}/check": {
+      "get": {
+        "tags": ["Favorites"],
+        "summary": "Check if a site is favorited by the current user",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "siteId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favorite status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "is_favorited": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authenticated" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/dashboard": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get the dashboard data for the current user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User dashboard data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "User dashboard data object",
+                  "properties": {
+                    "user_id": { "type": "integer" },
+                    "username": { "type": "string" },
+                    "favorites_count": { "type": "integer" },
+                    "recent_activity": {
+                      "type": "array",
+                      "items": { "type": "object" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authenticated" },
+          "404": { "description": "User not found" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/dashboard/nearby": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get nearby places for the current user",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "radius",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 5,
+              "description": "Search radius in kilometers"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of nearby places",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "place_id": { "type": "integer" },
+                      "name": { "type": "string" },
+                      "latitude": { "type": "number" },
+                      "longitude": { "type": "number" },
+                      "distance": {
+                        "type": "number",
+                        "description": "Distance from user in km"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authenticated" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/cultural-sites": {
+      "get": {
+        "tags": ["Cultural Sites"],
+        "summary": "Get all cultural sites with optional pagination",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Max number of sites to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": { "type": "integer", "default": 0 },
+            "description": "Number of sites to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of cultural sites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CulturalSite" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/cultural-sites/search": {
+      "get": {
+        "tags": ["Cultural Sites"],
+        "summary": "Search cultural sites by query string",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Search query"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 50 }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": { "type": "integer", "default": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CulturalSite" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/cultural-sites/type/{type}": {
+      "get": {
+        "tags": ["Cultural Sites"],
+        "summary": "Get cultural sites by type",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 50 }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": { "type": "integer", "default": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sites filtered by type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CulturalSite" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/cultural-sites/category/{categoryId}": {
+      "get": {
+        "tags": ["Cultural Sites"],
+        "summary": "Get cultural sites by category ID",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 50 }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": { "type": "integer", "default": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sites filtered by category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CulturalSite" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/cultural-sites/nearby": {
+      "get": {
+        "tags": ["Cultural Sites"],
+        "summary": "Find nearby cultural sites by latitude and longitude",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "float" },
+            "description": "Latitude coordinate"
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "float" },
+            "description": "Longitude coordinate"
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "schema": { "type": "number", "default": 5 },
+            "description": "Search radius in kilometers"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of nearby cultural sites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CulturalSite" }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid or missing lat/lng parameters" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/cultural-sites/{id}": {
+      "get": {
+        "tags": ["Cultural Sites"],
+        "summary": "Get details of a cultural site by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cultural site details with reviews, favorite count, average rating, and favorite status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    { "$ref": "#/components/schemas/CulturalSite" },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "reviews": {
+                          "type": "array",
+                          "items": { "$ref": "#/components/schemas/Review" }
+                        },
+                        "favorite_count": { "type": "integer" },
+                        "average_rating": {
+                          "type": "number",
+                          "format": "float"
+                        },
+                        "is_favorited": { "type": "boolean" }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "description": "Cultural site not found" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/cultural-sites/fetch/osm": {
+      "get": {
+        "tags": ["Cultural Sites"],
+        "summary": "Fetch cultural sites from OpenStreetMap (OSM)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "float" }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "float" }
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "schema": { "type": "number", "default": 5 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cultural sites fetched from OSM",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CulturalSite" }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid or missing lat/lon parameters" },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+
+    "/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get all categories",
+        "description": "Retrieve a list of all categories.",
+        "responses": {
+          "200": {
+            "description": "A list of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get category by ID",
+        "description": "Retrieve a single category by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the category to retrieve",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Category not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/site/{siteId}": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get categories for a specific cultural site",
+        "description": "Retrieve all categories associated with a specific cultural site by its siteId.",
+        "parameters": [
+          {
+            "name": "siteId",
+            "in": "path",
+            "description": "ID of the cultural site",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of categories for the site",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

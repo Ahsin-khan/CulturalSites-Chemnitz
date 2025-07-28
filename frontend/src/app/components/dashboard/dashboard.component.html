@@ -1,0 +1,98 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p>Cultural sites near you in Chemnitz</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading dashboard data...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="dashboardData && !loading" class="dashboard-content">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ dashboardData.totalReviews }}</div>
+        <div class="stat-label">Your Reviews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ dashboardData.totalFavorites }}</div>
+        <div class="stat-label">Favorites</div>
+      </div>
+    </div>
+
+    <!-- Popular Sites -->
+      <div class="section" *ngIf="dashboardData.popularSites && dashboardData.popularSites.length > 0">
+      <h2>Popular Sites</h2>
+      <div class="sites-grid">
+        <div *ngFor="let site of dashboardData.popularSites" class="site-card">
+          <h4>{{ site.name }}</h4>
+          <p>{{ site.type }}</p>
+          <div class="site-meta">
+            <span class="rating">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    [class.filled]="star <= site.averageRating">★</span>
+              ({{ site.reviewCount }})
+            </span>
+          </div>
+          <a [routerLink]="['/sites', site.id]" class="view-btn">View Details</a>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- MAP -->
+    <div class="section" *ngIf="nearbySites.length > 0">
+      <h2>Map of Nearby Sites</h2>
+      <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div> 
+    </div>
+
+
+
+    <!-- Nearby Sites -->
+    <div class="section" *ngIf="nearbySites.length > 0">
+      <h2>Nearby Sites</h2>
+      <div class="sites-grid">
+        <div *ngFor="let site of paginatedNearbySites()" class="site-card">
+          <h4>{{ site.name }}</h4>
+          <p>{{ site.type }}</p>
+          <div class="site-meta">
+            <span class="distance" *ngIf="site.distance">{{ site.distance | number:'1.1-1' }} km away</span>
+          </div>
+          <a [routerLink]="['/sites', site.id]" class="view-btn">View Details</a>
+        </div>
+      </div>
+    </div>
+
+        <!-- Pagination Controls for Nearby Sites -->
+    <div class="pagination-controls" *ngIf="totalNearbyPages > 1">
+      <button (click)="prevNearbyPage()" [disabled]="nearbyCurrentPage === 1">Previous</button>
+      <span>Page {{ nearbyCurrentPage }} of {{ totalNearbyPages }}</span>
+      <button (click)="nextNearbyPage()" [disabled]="nearbyCurrentPage === totalNearbyPages">Next</button>
+    </div>
+
+
+
+      <!-- Recent Reviews -->
+      <div class="section" *ngIf="dashboardData.recentReviews && dashboardData.recentReviews.length > 0">
+      <h2>Recent Reviews</h2>
+      <div class="reviews-list">
+        <div *ngFor="let review of dashboardData.recentReviews" class="review-item">
+          <div class="review-header">
+            <h4>{{ review.site_name }}</h4>
+            <div class="rating">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    [class.filled]="star <= review.rating">★</span>
+            </div>
+          </div>
+          <p>{{ review.comment }}</p>
+          <small>{{ review.created_at | date:'short' }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
