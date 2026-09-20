@@ -1,4 +1,4 @@
-# CulturaSites Chemnitz
+# CulturaMap Chemnitz
 
 An interactive web application to explore and review cultural heritage sites in Chemnitz, Germany. This platform combines OpenStreetMap data, modern web technologies, and user-generated content to enhance cultural awareness and provide a personalized exploration experience.
 
